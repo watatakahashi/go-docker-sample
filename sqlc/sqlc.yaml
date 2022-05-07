@@ -1,0 +1,8 @@
+version: 1
+packages:
+  - path: "db"
+    name: "db"
+    engine: "postgresql"
+    schema: "schema.sql"
+    # schema: "../docker/init/1_init.sql"
+    queries: "query.sql"

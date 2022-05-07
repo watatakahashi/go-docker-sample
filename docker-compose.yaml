@@ -1,0 +1,26 @@
+version: '3'
+services:
+  db:
+    image: postgres:14.2
+    container_name: sample-db
+    ports:
+      - 5434:5432 #5434ポートを公開
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=sampledb
+    volumes:
+      - ./docker/init:/docker-entrypoint-initdb.d #指定した配下の*.sqlファイルをDB起動時に実行する
+  api:
+    container_name: sample-api
+    working_dir: /go/src/app
+    build:
+      context: .
+      dockerfile: Dockerfile # Dockerの内容をもとに起動する
+    tty: true # コンテナの永続化、処理が終わっても起動し続けるようにする
+    volumes:
+      - ./:/go/src/app #ローカルのsrcをコンテナにマウント
+    ports:
+      - 8180:8080
+    depends_on:
+      - db
