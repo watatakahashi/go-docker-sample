@@ -17,9 +17,6 @@ func main() {
 	// ポート番号の指定
 	server := http.Server{Addr: ":8080"}
 
-	// コントローラーに紐付け
-	http.HandleFunc("/", chatController)
-
 	db := initDb()
 	defer db.Close()
 
@@ -41,6 +38,9 @@ func router(db *sql.DB) {
 	http.HandleFunc("/user", userController.GetUser)
 }
 
+/*
+DBの初期化
+*/
 func initDb() *sql.DB {
 
 	url := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
@@ -62,17 +62,4 @@ func initDb() *sql.DB {
 	}
 
 	return db
-}
-
-func chatController(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(`
-		<html>
-			<head>
-				<title>Chat</title>
-			</head>
-			<body>
-				Let's chat!
-			</body>
-		</html>
-  `))
 }
