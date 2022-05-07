@@ -37,19 +37,17 @@ func TestUserRepository(t *testing.T) {
 // テストケース
 
 func (suite *UserTestSuite) TestGet() {
-	suite.Run("取得", func() {
-		r := User.NewUserRepository(suite.db)
+	r := User.NewUserRepository(suite.db)
 
+	suite.Run("取得 成功", func() {
 		user, _ := r.Get(1)
 		suite.Equal(1, user.Id)
 		suite.Equal("初期ユーザー1", user.Name)
 	})
 
-	suite.Run("取得 0件", func() {
-		// r := User.NewUserRepository(suite.db)
-
-		// user, _ := r.Get(999)
-		suite.Equal(0, 0)
+	suite.Run("取得 存在しないID", func() {
+		_, err := r.Get(999)
+		suite.Equal(err, sql.ErrNoRows)
 	})
 }
 

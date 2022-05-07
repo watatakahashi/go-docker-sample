@@ -22,7 +22,7 @@ func (u userRepository) Get(id int) (User, error) {
 
 	if err != nil {
 		fmt.Println(err)
-		panic(0)
+		return User{}, err
 	}
 
 	return User{
