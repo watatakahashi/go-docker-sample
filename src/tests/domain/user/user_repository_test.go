@@ -54,7 +54,8 @@ func (suite *UserTestSuite) TestGet() {
 func (suite *UserTestSuite) TestInsert() {
 	r := User.NewUserRepository(suite.db)
 
-	err := r.Insert(User.User{Name: "追加ユーザー"})
+	id, err := r.Insert(User.User{Name: "追加ユーザー"})
+	suite.Equal(4, id)
 	suite.Nil(err)
 }
 

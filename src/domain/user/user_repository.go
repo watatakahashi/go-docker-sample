@@ -31,8 +31,12 @@ func (u userRepository) Get(id int) (User, error) {
 		nil
 }
 
-func (u userRepository) Insert(user User) error {
+func (u userRepository) Insert(user User) (int, error) {
 	ctx := context.Background()
-	err := u.q.CreateUser(ctx, user.Name)
-	return err
+	userEntity, err := u.q.CreateUser(ctx, user.Name)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(userEntity.ID), nil
 }

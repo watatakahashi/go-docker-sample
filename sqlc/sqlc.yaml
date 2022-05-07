@@ -5,4 +5,4 @@ packages:
     engine: "postgresql"
     schema: "schema.sql"
     # schema: "../docker/init/1_init.sql"
-    queries: "query.sql"
+    queries: "query.sql" # TODO: 　migrationとファイルを共通にする

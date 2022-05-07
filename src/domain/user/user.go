@@ -9,6 +9,6 @@ type User struct {
 }
 
 type UserRepository interface {
-	Get(id int) (User, error) // 取得
-	Insert(user User) error   //追加
+	Get(id int) (User, error)      // 取得
+	Insert(user User) (int, error) //追加
 }

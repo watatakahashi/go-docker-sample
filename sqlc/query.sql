@@ -8,12 +8,13 @@ WHERE id = $1 LIMIT 1;
 SELECT * FROM users
 ORDER BY id;
 
--- name: CreateUser :exec
-INSERT INTO users (name) VALUES ($1);
+-- name: CreateUser :one
+INSERT INTO users (name) VALUES ($1)
+RETURNING id, name;
 
--- name: UpdateUser :exec
+-- name: UpdateUser :execrows
 UPDATE users SET name = $2
 WHERE id = $1;
 
--- name: DeleteUser :exec
+-- name: DeleteUser :execrows
 DELETE FROM users WHERE id = $1;

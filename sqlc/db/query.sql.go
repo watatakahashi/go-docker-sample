@@ -9,22 +9,28 @@ import (
 	"context"
 )
 
-const createUser = `-- name: CreateUser :exec
+const createUser = `-- name: CreateUser :one
 INSERT INTO users (name) VALUES ($1)
+RETURNING id, name
 `
 
-func (q *Queries) CreateUser(ctx context.Context, name string) error {
-	_, err := q.db.ExecContext(ctx, createUser, name)
-	return err
+func (q *Queries) CreateUser(ctx context.Context, name string) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser, name)
+	var i User
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
 }
 
-const deleteUser = `-- name: DeleteUser :exec
+const deleteUser = `-- name: DeleteUser :execrows
 DELETE FROM users WHERE id = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteUser, id)
-	return err
+func (q *Queries) DeleteUser(ctx context.Context, id int32) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteUser, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const getUser = `-- name: GetUser :one
@@ -69,7 +75,7 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
-const updateUser = `-- name: UpdateUser :exec
+const updateUser = `-- name: UpdateUser :execrows
 UPDATE users SET name = $2
 WHERE id = $1
 `
@@ -79,7 +85,10 @@ type UpdateUserParams struct {
 	Name string
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
-	_, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name)
-	return err
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
