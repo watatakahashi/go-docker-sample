@@ -6,6 +6,12 @@ package db
 
 import ()
 
+type Article struct {
+	ID     int32
+	Name   string
+	UserID int32
+}
+
 type User struct {
 	ID   int32
 	Name string

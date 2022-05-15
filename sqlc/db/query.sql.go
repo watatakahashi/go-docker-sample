@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -33,6 +34,34 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) (int64, error) {
 	return result.RowsAffected()
 }
 
+const getArticle = `-- name: GetArticle :one
+
+SELECT
+	article.id id,
+	article.name article_name,
+	users.name user_name
+FROM
+	article
+	JOIN users ON article.user_id = users.id
+WHERE
+	article.id = $1
+LIMIT 1
+`
+
+type GetArticleRow struct {
+	ID          int32
+	ArticleName string
+	UserName    string
+}
+
+// Article
+func (q *Queries) GetArticle(ctx context.Context, id int32) (GetArticleRow, error) {
+	row := q.db.QueryRowContext(ctx, getArticle, id)
+	var i GetArticleRow
+	err := row.Scan(&i.ID, &i.ArticleName, &i.UserName)
+	return i, err
+}
+
 const getUser = `-- name: GetUser :one
 
 SELECT id, name FROM users
@@ -45,6 +74,56 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 	var i User
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
+}
+
+const getUserArticles = `-- name: GetUserArticles :many
+
+SELECT
+	users.id AS user_id,
+	users.name AS user_name,
+	article.id AS article_id,
+	article.name AS article_name
+FROM
+	users
+	LEFT JOIN article ON users.id = article.user_id
+ORDER BY
+	users.id
+`
+
+type GetUserArticlesRow struct {
+	UserID      int32
+	UserName    string
+	ArticleID   sql.NullInt32
+	ArticleName sql.NullString
+}
+
+// UserArticle
+func (q *Queries) GetUserArticles(ctx context.Context) ([]GetUserArticlesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserArticles)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserArticlesRow
+	for rows.Next() {
+		var i GetUserArticlesRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.UserName,
+			&i.ArticleID,
+			&i.ArticleName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUsers = `-- name: GetUsers :many
