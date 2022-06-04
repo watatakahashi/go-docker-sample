@@ -34,3 +34,17 @@ sqlc generate
 
 詳細は以下を参考にする
 https://github.com/kyleconroy/sqlc
+
+## API定義書のコード生成
+
+openapi-generatorをインストールし、下記を実行\
+// TODO:環境に依存しないインストール
+
+```sh
+cd openapi
+mkdir output
+openapi-generator generate -i v1.yaml -g go-gin-server -o ./output/
+```
+
+参考
+https://openapi-generator.tech/
